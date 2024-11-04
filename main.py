@@ -18,9 +18,10 @@ class PasswordManagerApp(QWidget):
 
         # Set window title and fixed size
         self.setWindowTitle("Password Manager")
-        self.setStyleSheet("background-color: #000000;")  # Set background color for the window
+        # Set background color for the window
+        self.setStyleSheet("background-color: #000000;")
         self.setFixedSize(400, 300)
-        
+
         # Set window icon
         self.setWindowIcon(QIcon("icon.png"))
 
@@ -50,7 +51,8 @@ class PasswordManagerApp(QWidget):
 
         # Main title label
         title_label = QLabel("Password Manager", self)
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #FFFF00;")
+        title_label.setStyleSheet(
+            "font-size: 24px; font-weight: bold; color: #FFFF00;")
         layout.addWidget(title_label)
 
         # Form layout
@@ -60,27 +62,33 @@ class PasswordManagerApp(QWidget):
         email_username_label = QLabel("Email/Username:", self)
         email_username_label.setStyleSheet("color: #FFFF00;")
         self.email_username_input = QLineEdit(self)
-        self.email_username_input.setStyleSheet("background-color: #333333; color: #FFFFFF;")
-        self.form_layout.addRow(email_username_label, self.email_username_input)
+        self.email_username_input.setStyleSheet(
+            "background-color: #333333; color: #FFFFFF;")
+        self.form_layout.addRow(email_username_label,
+                                self.email_username_input)
 
         # Password label and input
         password_label = QLabel("Password:", self)
-        password_label.setStyleSheet("color: #FFFF00;") 
+        password_label.setStyleSheet("color: #FFFF00;")
         self.password_input = QLineEdit(self)
-        self.password_input.setEchoMode(QLineEdit.Password)  # To mask password input
-        self.password_input.setStyleSheet("background-color: #333333; color: #FFFFFF;")
+        self.password_input.setEchoMode(
+            QLineEdit.Password)  # To mask password input
+        self.password_input.setStyleSheet(
+            "background-color: #333333; color: #FFFFFF;")
         self.form_layout.addRow(password_label, self.password_input)
 
         # Submit button
         submit_button = QPushButton("Save", self)
-        submit_button.setStyleSheet("background-color: #007BFF; color: #FFFFFF;")
+        submit_button.setStyleSheet(
+            "background-color: #007BFF; color: #FFFFFF;")
         self.form_layout.addRow("", submit_button)
-        
+
         layout.addLayout(self.form_layout)
 
         # Button to switch to get password page
         switch_to_get_password_page = QPushButton("Get Password", self)
-        switch_to_get_password_page.setStyleSheet("background-color: #4CAF50; color: #FFFFFF;")
+        switch_to_get_password_page.setStyleSheet(
+            "background-color: #4CAF50; color: #FFFFFF;")
         switch_to_get_password_page.clicked.connect(self.get_password)
         layout.addWidget(switch_to_get_password_page)
 
@@ -92,29 +100,33 @@ class PasswordManagerApp(QWidget):
 
         # Title label for the password getting page
         title_label = QLabel("Password Manager", self)
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #FFFF00;")
+        title_label.setStyleSheet(
+            "font-size: 24px; font-weight: bold; color: #FFFF00;")
         layout.addWidget(title_label)
-        
+
         # Form layout
         self.form_layout = QFormLayout()
 
         # Email/Username label and input
         email_username_label = QLabel("Email/Username:", self)
-        email_username_label.setStyleSheet("color: #FFFF00;") 
+        email_username_label.setStyleSheet("color: #FFFF00;")
         self.email_username_input = QLineEdit(self)
-        self.email_username_input.setStyleSheet("background-color: #333333; color: #FFFFFF;")
-        self.form_layout.addRow(email_username_label, self.email_username_input)
+        self.email_username_input.setStyleSheet(
+            "background-color: #333333; color: #FFFFFF;")
+        self.form_layout.addRow(email_username_label,
+                                self.email_username_input)
 
         # Get button
         get_button = QPushButton("Get", self)
         get_button.setStyleSheet("background-color: #007BFF; color: #FFFFFF;")
         self.form_layout.addRow("", get_button)
-        
+
         layout.addLayout(self.form_layout)
 
         # Button to switch back to the password saving page
         switch_to_save_password_page = QPushButton("Save Password", self)
-        switch_to_save_password_page.setStyleSheet("background-color: #4CAF50; color: #FFFFFF;")
+        switch_to_save_password_page.setStyleSheet(
+            "background-color: #4CAF50; color: #FFFFFF;")
         switch_to_save_password_page.clicked.connect(self.save_password)
         layout.addWidget(switch_to_save_password_page)
 
