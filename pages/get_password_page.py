@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayo
 from pages.show_passwords_page import ShowPasswordsPage
 import json
 import os
+from PySide6.QtCore import QTimer
 
 
 class GetPasswordPage(QWidget):
@@ -23,14 +24,14 @@ class GetPasswordPage(QWidget):
         # Form layout
         self.form_layout = QFormLayout()
 
-        # Email/Username label and input
-        email_username_label = QLabel("Email/Username:", self)
-        email_username_label.setStyleSheet("color: #FFFF00;")
-        self.email_username_input = QLineEdit(self)
-        self.email_username_input.setStyleSheet(
+        # identifier label and input
+        identifier_label = QLabel("Identifier:", self)
+        identifier_label.setStyleSheet("color: #FFFF00;")
+        self.identifier_input = QLineEdit(self)
+        self.identifier_input.setStyleSheet(
             "background-color: #333333; color: #FFFFFF;")
-        self.form_layout.addRow(email_username_label,
-                                self.email_username_input)
+        self.form_layout.addRow(identifier_label,
+                                self.identifier_input)
 
         # Get button
         get_button = QPushButton("Get", self)
@@ -51,9 +52,26 @@ class GetPasswordPage(QWidget):
 
         self.setLayout(layout)
 
+        # Error label to show messages (initially empty)
+        self.error_label = QLabel("", self)
+        self.error_label.setStyleSheet("color: red;")
+        self.form_layout.addRow("", self.error_label)
+
     def show_user_passwords(self):
-        # Get the input username from the form
-        entered_username = self.email_username_input.text().strip()
+        # Clear any previous error message
+        self.error_label.setText("")
+
+        # Get the input from the form
+        entered_identifier = self.identifier_input.text().strip()
+
+        # Check if the input is empty
+        if not entered_identifier:
+            # Display error message if the input is empty
+            self.error_label.setText("Please enter a identifier.")
+
+            # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
+            QTimer.singleShot(3000, self.clear_error_message)
+            return  # Stop further processing if input is empty
 
         # Define the file path
         file_path = "passwords.json"
@@ -65,18 +83,27 @@ class GetPasswordPage(QWidget):
         else:
             data = []
 
-        # Search for the entered username in the loaded data
-        found_passwords = [entry['password'] for entry in data if entry['username'].strip(
-        ).lower() == entered_username.lower()]
+        # Search for the entered identifier in the loaded data
+        found_passwords = []
+        for entry in data:
+            if entry['identifier'].strip().lower() == entered_identifier.lower():
+                # Retrieve all passwords for the identifier
+                found_passwords = entry['passwords']
+                break
 
         if found_passwords:
             # Create a new page to show the passwords
             show_passwords_page = ShowPasswordsPage(
-                self, entered_username, found_passwords)
+                self, entered_identifier, found_passwords)
             self.stacked_widget.addWidget(show_passwords_page)
             self.stacked_widget.setCurrentWidget(show_passwords_page)
         else:
-            # Show message if username is not found
-            error_label = QLabel("Username not found!", self)
-            error_label.setStyleSheet("color: red;")
-            self.form_layout.addRow("", error_label)
+            # Update the error message if identifier is not found
+            self.error_label.setText("Identifier not found!")
+
+            # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
+            QTimer.singleShot(3000, self.clear_error_message)
+
+    # Function to clear the error label
+    def clear_error_message(self):
+        self.error_label.setText("")

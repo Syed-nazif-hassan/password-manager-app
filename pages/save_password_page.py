@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 import json
 import os
+from PySide6.QtCore import QTimer
 
 
 class SavePasswordPage(QWidget):
@@ -20,14 +21,14 @@ class SavePasswordPage(QWidget):
         # Form layout
         self.form_layout = QFormLayout()
 
-        # Email/Username label and input
-        email_username_label = QLabel("Email/Username:", self)
-        email_username_label.setStyleSheet("color: #FFFF00;")
-        self.email_username_input = QLineEdit(self)
-        self.email_username_input.setStyleSheet(
+        # identifier label and input
+        identifier_label = QLabel("Identifier:", self)
+        identifier_label.setStyleSheet("color: #FFFF00;")
+        self.identifier_input = QLineEdit(self)
+        self.identifier_input.setStyleSheet(
             "background-color: #333333; color: #FFFFFF;")
-        self.form_layout.addRow(email_username_label,
-                                self.email_username_input)
+        self.form_layout.addRow(identifier_label,
+                                self.identifier_input)
 
         # Password label and input
         password_label = QLabel("Password:", self)
@@ -59,10 +60,45 @@ class SavePasswordPage(QWidget):
 
         self.setLayout(layout)
 
+        # Error label to show messages (initially empty)
+        self.error_label = QLabel("", self)
+        self.error_label.setStyleSheet("color: red;")
+        self.form_layout.addRow("", self.error_label)
+
     def save_to_json(self):
+        # Clear any previous error message
+        self.error_label.setText("")
+
         # Get the user input
-        username = self.email_username_input.text()
+        identifier = self.identifier_input.text()
         password = self.password_input.text()
+
+        # Check if the identifier or password is empty
+        if not identifier and not password:
+            self.error_label.setText(
+                "Please enter both identifier and password.")
+
+            # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
+            QTimer.singleShot(3000, self.clear_error_message)
+
+            # Stop further processing if input is empty
+            return
+        elif not identifier:
+            self.error_label.setText("Please enter a identifier.")
+
+            # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
+            QTimer.singleShot(3000, self.clear_error_message)
+
+            # Stop further processing if input is empty
+            return
+        elif not password:
+            self.error_label.setText("Please enter a password.")
+
+            # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
+            QTimer.singleShot(3000, self.clear_error_message)
+
+            # Stop further processing if input is empty
+            return
 
         # Define the file path
         file_path = "passwords.json"
@@ -75,13 +111,27 @@ class SavePasswordPage(QWidget):
             # If the file doesn't exist or is empty, initialize an empty list
             data = []
 
-        # Append the new username and password to the data
-        data.append({"username": username, "password": password})
+        # Search for the identifier in the data
+        identifier_exists = False
+        for entry in data:
+            if entry['identifier'] == identifier:
+                # If identifier already exists, add the password to the list of passwords
+                entry['passwords'].append(password)
+                identifier_exists = True
+                break
+
+        # If the identifier does not exist, create a new entry
+        if not identifier_exists:
+            data.append({"identifier": identifier, "passwords": [password]})
 
         # Save the updated data back to the JSON file
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
 
         # Clear the input fields after saving
-        self.email_username_input.clear()
+        self.identifier_input.clear()
         self.password_input.clear()
+
+    # Function to clear the error label
+    def clear_error_message(self):
+        self.error_label.setText("")
