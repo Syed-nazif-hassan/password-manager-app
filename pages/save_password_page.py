@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 import json
 import os
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 
 
 class SavePasswordPage(QWidget):
@@ -44,6 +44,8 @@ class SavePasswordPage(QWidget):
         submit_button = QPushButton("Save", self)
         submit_button.setStyleSheet(
             "background-color: #007BFF; color: #FFFFFF;")
+        # Disable focus for this button
+        submit_button.setFocusPolicy(Qt.NoFocus)
         # Connect button to save function
         submit_button.clicked.connect(self.save_to_json)
         self.form_layout.addRow("", submit_button)

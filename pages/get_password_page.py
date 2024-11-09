@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
-from pages.show_passwords_page import ShowPasswordsPage
+from pages.show_passwords_dialog import ShowPasswordsDialog
 import json
 import os
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 
 
 class GetPasswordPage(QWidget):
@@ -35,7 +35,10 @@ class GetPasswordPage(QWidget):
 
         # Get button
         get_button = QPushButton("Get", self)
-        get_button.setStyleSheet("background-color: #007BFF; color: #FFFFFF;")
+        get_button.setStyleSheet(
+            "background-color: #007BFF; color: #FFFFFF; outline: none")
+        # Disable focus for this button
+        get_button.setFocusPolicy(Qt.NoFocus)
         # Connect to show_user_passwords function
         get_button.clicked.connect(self.show_user_passwords)
         self.form_layout.addRow("", get_button)
@@ -92,11 +95,11 @@ class GetPasswordPage(QWidget):
                 break
 
         if found_passwords:
-            # Create a new page to show the passwords
-            show_passwords_page = ShowPasswordsPage(
-                self, entered_identifier, found_passwords)
-            self.stacked_widget.addWidget(show_passwords_page)
-            self.stacked_widget.setCurrentWidget(show_passwords_page)
+            # Create and open the modal dialog for passwords
+            dialog = ShowPasswordsDialog(
+                entered_identifier, found_passwords, self.main_window)
+            dialog.exec_()  # This will block the main window until the dialog is closed
+
         else:
             # Update the error message if identifier is not found
             self.error_label.setText("Identifier not found!")
