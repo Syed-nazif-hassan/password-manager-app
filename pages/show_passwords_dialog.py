@@ -24,27 +24,17 @@ class ShowPasswordsDialog(QDialog):
         # Layout for displaying passwords
         layout = QVBoxLayout()
 
-        # Title label for the identifier
-        title_label = QLabel(f"Password{'s' if len(
-            passwords) > 1 else ''} for {identifier}:", self)
-        title_label.setStyleSheet(
-            "font-size: 20px; font-weight: bold; color: #FFFF00;")
-        layout.addWidget(title_label)
-
-        # Create a QWidget to hold the passwords (to use with QScrollArea)
+        # Create a QWidget to hold the passwords
         password_widget = self.build_password_list_ui()
-        
-        # Create and assign the scroll_area as an instance attribute
-        self.scroll_area = QScrollArea(self)
-        self.scroll_area.setWidget(password_widget)
-        self.scroll_area.setWidgetResizable(True)
-        layout.addWidget(self.scroll_area)
-        
-        # Add "All Passwords" button at the bottom
-        all_passwords_button = QPushButton("All Passwords", self)
-        all_passwords_button.setStyleSheet(
-            "background-color: #007BFF; color: #FFFFFF; font-size: 14px;")
-        layout.addWidget(all_passwords_button)
+
+        # Set up the title label
+        self.setup_title_label(layout)
+
+        # Set up the scroll area
+        self.setup_scroll_area(layout, password_widget)
+
+        # Set up the "All Passwords" button
+        self.setup_all_passwords_button(layout)
 
         # Set the layout
         self.setLayout(layout)
@@ -52,6 +42,28 @@ class ShowPasswordsDialog(QDialog):
         # Set the dialog size to match the main window
         if parent is not None:
             self.resize(parent.size())
+
+    def setup_title_label(self, layout):
+        """Set up the title label"""
+        title_label = QLabel(f"Password{'s' if len(self.passwords) > 1 else ''} for {
+                             self.identifier}:", self)
+        title_label.setStyleSheet(
+            "font-size: 20px; font-weight: bold; color: #FFFF00;")
+        layout.addWidget(title_label)
+
+    def setup_all_passwords_button(self, layout):
+        """Set up the 'All Passwords' button"""
+        all_passwords_button = QPushButton("Show All Passwords", self)
+        all_passwords_button.setStyleSheet(
+            "background-color: #007BFF; color: #FFFFFF;")
+        layout.addWidget(all_passwords_button)
+
+    def setup_scroll_area(self, layout, password_widget):
+        """Set up the scroll area"""
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidget(password_widget)
+        scroll_area.setWidgetResizable(True)
+        layout.addWidget(scroll_area)
 
     def build_password_list_ui(self):
         """Builds the list of password rows."""
@@ -143,19 +155,14 @@ class ShowPasswordsDialog(QDialog):
             if widget is not None:
                 widget.deleteLater()
 
-        # Add title label
-        title_label = QLabel(f"Password{'s' if len(self.passwords) > 1 else ''} for {
-                             self.identifier}:", self)
-        title_label.setStyleSheet(
-            "font-size: 20px; font-weight: bold; color: #FFFF00;")
-        layout.addWidget(title_label)
-
         # Rebuild the password list UI
         password_widget = self.build_password_list_ui()
 
-        # Create and set scroll area for the password widget
-        # scroll_area = QScrollArea(self)
-        # scroll_area.setWidget(password_widget)
-        # scroll_area.setWidgetResizable(True)
-        # layout.addWidget(scroll_area)
-        self.scroll_area.setWidget(password_widget)
+        # Set up the title label
+        self.setup_title_label(layout)
+
+        # Set up the scroll area
+        self.setup_scroll_area(layout, password_widget)
+
+        # Set up the "All Passwords" button
+        self.setup_all_passwords_button(layout)
