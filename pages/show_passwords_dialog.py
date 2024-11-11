@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QPushButton
 )
 from PySide6.QtCore import Qt
+from pages.all_passwords_dialog import AllPasswordsDialog
 import json
 import os
 
@@ -56,7 +57,16 @@ class ShowPasswordsDialog(QDialog):
         all_passwords_button = QPushButton("Show All Passwords", self)
         all_passwords_button.setStyleSheet(
             "background-color: #007BFF; color: #FFFFFF;")
+        all_passwords_button.clicked.connect(
+            self.show_all_passwords_dialog)  # Connect to AllPasswordsDialog
         layout.addWidget(all_passwords_button)
+
+    def show_all_passwords_dialog(self):
+        """Show the AllPasswordsDialog and close the current dialog."""
+        self.close()  # Close the current dialog
+        all_passwords_dialog = AllPasswordsDialog(
+            self)  # Open AllPasswordsDialog
+        all_passwords_dialog.exec()  # Show it as a modal dialog
 
     def setup_scroll_area(self, layout, password_widget):
         """Set up the scroll area"""
@@ -117,7 +127,7 @@ class ShowPasswordsDialog(QDialog):
             self.close()  # Close the dialog
         else:
             # Update the displayed list of passwords
-            self.update_password_list()
+            self.refresh_dialog_layout()
 
     def remove_password_from_json(self, password):
         """Remove the password from the JSON file."""
@@ -144,7 +154,7 @@ class ShowPasswordsDialog(QDialog):
         clipboard = QApplication.clipboard()
         clipboard.setText(password)
 
-    def update_password_list(self):
+    def refresh_dialog_layout(self):
         """Update the list of passwords displayed in the dialog."""
         # Clear the current layout and rebuild it with the updated passwords
         layout = self.layout()

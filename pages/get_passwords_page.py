@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
+from PySide6.QtCore import QTimer, Qt
 from pages.show_passwords_dialog import ShowPasswordsDialog
 import json
 import os
-from PySide6.QtCore import QTimer, Qt
 
 
 class GetPasswordPage(QWidget):
@@ -95,11 +95,13 @@ class GetPasswordPage(QWidget):
                 break
 
         if found_passwords:
+            # Clear the input field
+            self.identifier_input.clear()
+
             # Create and open the modal dialog for passwords
             dialog = ShowPasswordsDialog(
                 entered_identifier, found_passwords, self.main_window)
             dialog.exec_()  # This will block the main window until the dialog is closed
-
         else:
             # Update the error message if identifier is not found
             self.error_label.setText("Identifier not found!")

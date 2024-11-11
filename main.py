@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QStackedWidget
 from PySide6.QtGui import QIcon
 from pages.save_password_page import SavePasswordPage
-from pages.get_password_page import GetPasswordPage
+from pages.get_passwords_page import GetPasswordPage
 import sys
 
 

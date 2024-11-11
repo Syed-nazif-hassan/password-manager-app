@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
+from PySide6.QtCore import QTimer, Qt
 import json
 import os
-from PySide6.QtCore import QTimer, Qt
 
 
 class SavePasswordPage(QWidget):
