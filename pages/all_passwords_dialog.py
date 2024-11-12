@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QWidget
+from security import decrypt_identifier, decrypt_password
 import json
 import os
 
@@ -51,22 +52,25 @@ class AllPasswordsDialog(QDialog):
         else:
             data = []
 
-        # Create a row for each identifier and its passwords
         for entry in data:
-            identifier = entry['identifier']
+            # Decrypt the identifier
+            decrypted_identifier = decrypt_identifier(entry['identifier'])
             passwords = entry.get('passwords', [])
 
-            # Username label
-            username_label = QLabel(f"{identifier}:", self)
-            username_label.setStyleSheet(
+            # Identifier label
+            identifier_label = QLabel(f"{decrypted_identifier}:", self)
+            identifier_label.setStyleSheet(
                 "font-size: 17px; font-weight: bold; color: #FFFF00;")
-            passwords_layout.addWidget(username_label)
+            passwords_layout.addWidget(identifier_label)
 
             # Create a row for each password
-            for password in passwords:
+            for encrypted_password in passwords:
+                # Decrypt each password
+                decrypted_password = decrypt_password(encrypted_password)
+
                 password_row = QHBoxLayout()
 
-                password_label = QLabel(f"- {password}", self)
+                password_label = QLabel(f"- {decrypted_password}", self)
                 password_label.setStyleSheet(
                     "font-size: 14px; color: #FFFFFF;")
                 password_row.addWidget(password_label)
@@ -79,7 +83,7 @@ class AllPasswordsDialog(QDialog):
                     "background-color: #FF0000; color: #FFFFFF; font-size: 10px;")
                 delete_button.setFixedSize(40, 20)
                 delete_button.clicked.connect(
-                    lambda _, id=identifier, p=password: self.delete_password(id, p))
+                    lambda _, id=entry['identifier'], p=encrypted_password: self.delete_password(id, p))
                 password_row.addWidget(delete_button)
 
                 passwords_layout.addLayout(password_row)

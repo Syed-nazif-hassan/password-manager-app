@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 from PySide6.QtCore import QTimer, Qt
 from pages.show_passwords_dialog import ShowPasswordsDialog
+from security import decrypt_identifier, decrypt_password
 import json
 import os
 
@@ -89,9 +90,13 @@ class GetPasswordPage(QWidget):
         # Search for the entered identifier in the loaded data
         found_passwords = []
         for entry in data:
-            if entry['identifier'].strip().lower() == entered_identifier.lower():
-                # Retrieve all passwords for the identifier
-                found_passwords = entry['passwords']
+            # Decrypt the identifier before comparison
+            decrypted_identifier = decrypt_identifier(entry['identifier'])
+
+            if decrypted_identifier.strip().lower() == entered_identifier.lower():
+                # Decrypt all passwords associated with this identifier
+                found_passwords = [decrypt_password(
+                    pw) for pw in entry['passwords']]
                 break
 
         if found_passwords:
