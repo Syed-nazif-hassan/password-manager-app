@@ -94,10 +94,8 @@ class GetPasswordPage(QWidget):
             decrypted_identifier = decrypt_identifier(entry['identifier'])
 
             if decrypted_identifier.strip().lower() == entered_identifier.lower():
-                # Decrypt all passwords associated with this identifier
-                found_passwords = [decrypt_password(
-                    pw) for pw in entry['passwords']]
-                break
+                # Decrypt the single password and append it to the list
+                found_passwords.append(decrypt_password(entry['passwords']))
 
         if found_passwords:
             # Clear the input field
