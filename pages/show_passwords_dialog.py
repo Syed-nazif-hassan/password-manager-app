@@ -10,17 +10,18 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from pages.all_passwords_dialog import AllPasswordsDialog
+from security import decrypt_identifier, decrypt_password
 import json
 import os
 
 
 class ShowPasswordsDialog(QDialog):
-    def __init__(self, identifier, passwords, parent=None):
+    def __init__(self, identifier, passwords_and_ids, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Password Manager")
         self.setModal(True)  # Set as a modal dialog
         self.identifier = identifier  # Store the identifier
-        self.passwords = passwords  # Store passwords so we can update them
+        self.passwords_and_ids = passwords_and_ids  # Store passwords and ids
 
         # Layout for displaying passwords
         layout = QVBoxLayout()
@@ -46,8 +47,10 @@ class ShowPasswordsDialog(QDialog):
 
     def setup_title_label(self, layout):
         """Set up the title label"""
-        title_label = QLabel(f"Password{'s' if len(self.passwords) > 1 else ''} for {
-                             self.identifier}:", self)
+
+        # Decrypt the identifier for title label
+        title_label = QLabel(f"Password{'s' if len(self.passwords_and_ids) > 1 else ''} for {
+                             decrypt_identifier(self.identifier)}:", self)
         title_label.setStyleSheet(
             "font-size: 20px; font-weight: bold; color: #FFFF00;")
         layout.addWidget(title_label)
@@ -81,10 +84,13 @@ class ShowPasswordsDialog(QDialog):
         password_layout = QVBoxLayout(password_widget)
 
         # Display each password with copy and delete buttons
-        for password in self.passwords:
+        for password_and_id in self.passwords_and_ids:
             password_row = QHBoxLayout()
 
-            password_label = QLabel(f"- {password}", self)
+            # Decrypt the password
+            password_label = QLabel(
+                f"- {decrypt_password(password_and_id['password'])}", self)
+
             password_label.setStyleSheet("font-size: 14px; color: #FFFFFF;")
             password_row.addWidget(password_label)
 
@@ -97,7 +103,7 @@ class ShowPasswordsDialog(QDialog):
             copy_button.setFocusPolicy(Qt.NoFocus)
             copy_button.setFixedSize(40, 20)
             copy_button.clicked.connect(
-                lambda _, p=password: self.copy_password(p))
+                lambda _, p=password_and_id: self.copy_password(p))
             password_row.addWidget(copy_button)
 
             # Delete button
@@ -107,29 +113,30 @@ class ShowPasswordsDialog(QDialog):
             delete_button.setFocusPolicy(Qt.NoFocus)
             delete_button.setFixedSize(40, 20)
             delete_button.clicked.connect(
-                lambda _, p=password: self.delete_password(p))
+                lambda _, id=password_and_id['id']: self.delete_password(id))
             password_row.addWidget(delete_button)
 
             password_layout.addLayout(password_row)
 
         return password_widget
 
-    def delete_password(self, password):
+    def delete_password(self, id):
         """Delete the selected password from the list and JSON file, and update the UI."""
         # Remove the password from the list
-        self.passwords.remove(password)
+        self.passwords_and_ids = [
+            d for d in self.passwords_and_ids if d["id"] != id]
 
         # Remove the password from the JSON file
-        self.remove_password_from_json(password)
+        self.remove_password_from_json(id)
 
         # If all passwords are deleted, close the dialog
-        if not self.passwords:
+        if not self.passwords_and_ids:
             self.close()  # Close the dialog
         else:
             # Update the displayed list of passwords
             self.refresh_dialog_layout()
 
-    def remove_password_from_json(self, password):
+    def remove_password_from_json(self, id):
         """Remove the password from the JSON file."""
         file_path = "passwords.json"
 
@@ -137,17 +144,13 @@ class ShowPasswordsDialog(QDialog):
             with open(file_path, 'r') as file:
                 data = json.load(file)
 
-            for entry in data:
-                if entry['identifier'] == self.identifier:
-                    if password in entry['passwords']:
-                        entry['passwords'].remove(password)
-                    if not entry['passwords']:
-                        # Remove entry if no passwords are left
-                        data.remove(entry)
-                    break
+        for entry in data:
+            if entry['id'] == id:
+                data.remove(entry)
 
-            with open(file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+        # Write the updated data back to the JSON file
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
 
     def copy_password(self, password):
         """Copy the selected password to the clipboard."""

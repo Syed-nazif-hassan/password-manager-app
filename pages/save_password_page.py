@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 from PySide6.QtCore import QTimer, Qt
 from security import encrypt_identifier, encrypt_password
+import uuid
 import json
 import os
 
@@ -105,10 +106,13 @@ class SavePasswordPage(QWidget):
 
         # Define the file path
         file_path = "passwords.json"
-        
+
         # Encrypt the identifier and password using the AES encryption
         encrypted_identifier = encrypt_identifier(identifier)
         encrypted_password = encrypt_password(password)
+
+        # Generate a unique ID for the entry
+        unique_id = str(uuid.uuid4())
 
         # Check if the file exists and is not empty
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
@@ -118,19 +122,10 @@ class SavePasswordPage(QWidget):
             # If the file doesn't exist or is empty, initialize an empty list
             data = []
 
-        # Search for the identifier in the data
-        identifier_exists = False
-        for entry in data:
-            if entry['identifier'] == encrypted_identifier:
-                # If identifier already exists, add the encrypted password to the list
-                entry['passwords'].append(encrypted_password)
-                identifier_exists = True
-                break
-        
-        # If the identifier does not exist, create a new entry with the encrypted identifier and password
-        if not identifier_exists:
-            data.append({"identifier": encrypted_identifier,
-                        "passwords": [encrypted_password]})
+        # Create a new entry with the encrypted identifier and password
+        data.append({"id": unique_id,
+                     "identifier": encrypted_identifier,
+                     "password": encrypted_password})
 
         # Save the updated data back to the JSON file
         with open(file_path, 'w') as file:

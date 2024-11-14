@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 from PySide6.QtCore import QTimer, Qt
 from pages.show_passwords_dialog import ShowPasswordsDialog
-from security import decrypt_identifier, decrypt_password
+from security import decrypt_identifier
 import json
 import os
 
@@ -62,6 +62,9 @@ class GetPasswordPage(QWidget):
         self.form_layout.addRow("", self.error_label)
 
     def show_user_passwords(self):
+        # Identifier to send to 'show_passwords_dialog.py'
+        identifier_to_send = None
+
         # Clear any previous error message
         self.error_label.setText("")
 
@@ -88,22 +91,32 @@ class GetPasswordPage(QWidget):
             data = []
 
         # Search for the entered identifier in the loaded data
-        found_passwords = []
+        password_and_ids = []
         for entry in data:
+            # Identifier in encrypted form
+            encrypted_identifier = entry['identifier']
+
+            # Password in encrypted form
+            encrypted_password = entry['password']
+
             # Decrypt the identifier before comparison
-            decrypted_identifier = decrypt_identifier(entry['identifier'])
+            decrypted_identifier = decrypt_identifier(encrypted_identifier)
 
             if decrypted_identifier.strip().lower() == entered_identifier.lower():
-                # Decrypt the single password and append it to the list
-                found_passwords.append(decrypt_password(entry['passwords']))
+                # Update identifier_send_to
+                identifier_to_send = encrypted_identifier
 
-        if found_passwords:
+                # Append the encrypted password to the list
+                password_and_ids.append({"id": entry['id'],
+                                        "password": encrypted_password})
+
+        if password_and_ids:
             # Clear the input field
             self.identifier_input.clear()
 
             # Create and open the modal dialog for passwords
             dialog = ShowPasswordsDialog(
-                entered_identifier, found_passwords, self.main_window)
+                identifier_to_send, password_and_ids, self.main_window)
             dialog.exec_()  # This will block the main window until the dialog is closed
         else:
             # Update the error message if identifier is not found
