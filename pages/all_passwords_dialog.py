@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QWidget
+from PySide6.QtCore import Qt
 from security import decrypt_identifier, decrypt_password
+from collections import defaultdict
 import json
 import os
 
@@ -44,7 +46,7 @@ class AllPasswordsDialog(QDialog):
         passwords_widget = QWidget(self)
         passwords_layout = QVBoxLayout(passwords_widget)
 
-        # Load the passwords from the JSON file
+        # Load the identifiers, passwords and IDs from the JSON file
         file_path = "passwords.json"
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
             with open(file_path, 'r') as file:
@@ -52,61 +54,61 @@ class AllPasswordsDialog(QDialog):
         else:
             data = []
 
-        for entry in data:
-            # Decrypt the identifier
-            decrypted_identifier = decrypt_identifier(entry['identifier'])
-            passwords = entry.get('passwords', [])
+        grouped_passwords = defaultdict(list)
 
+        for entry in data:
+            # Decrypt the identifier and password
+            decrypted_identifier = decrypt_identifier(entry['identifier'])
+            decrypted_password = decrypt_password(entry['password'])
+
+            # Group all passwords and IDs under the same identifier
+            grouped_passwords[decrypted_identifier].append(
+                {"id": entry['id'], "password": decrypted_password})
+
+        # Build the UI
+        for identifier, password_and_id_list in grouped_passwords.items():
             # Identifier label
-            identifier_label = QLabel(f"{decrypted_identifier}:", self)
+            identifier_label = QLabel(f"{identifier}:", self)
             identifier_label.setStyleSheet(
                 "font-size: 17px; font-weight: bold; color: #FFFF00;")
             passwords_layout.addWidget(identifier_label)
 
             # Create a row for each password
-            for encrypted_password in passwords:
-                # Decrypt each password
-                decrypted_password = decrypt_password(encrypted_password)
-
+            for password_and_id in password_and_id_list:
                 password_row = QHBoxLayout()
 
-                password_label = QLabel(f"- {decrypted_password}", self)
+                password_label = QLabel(
+                    f"- {password_and_id['password']}", self)
                 password_label.setStyleSheet(
                     "font-size: 14px; color: #FFFFFF;")
                 password_row.addWidget(password_label)
 
                 password_row.addStretch(1)
 
-                # Delete button for each password
+                # Delete button for each password 
                 delete_button = QPushButton("Delete", self)
                 delete_button.setStyleSheet(
                     "background-color: #FF0000; color: #FFFFFF; font-size: 10px;")
                 delete_button.setFixedSize(40, 20)
+                # Disable focus on the button
+                delete_button.setFocusPolicy(Qt.NoFocus)
                 delete_button.clicked.connect(
-                    lambda _, id=entry['identifier'], p=encrypted_password: self.delete_password(id, p))
+                    lambda _, entry_id=password_and_id['id']: self.delete_password(entry_id))
                 password_row.addWidget(delete_button)
 
                 passwords_layout.addLayout(password_row)
 
         return passwords_widget
 
-    def delete_password(self, identifier, password):
+    def delete_password(self, entry_id):
         """Delete the password from the JSON file and update the UI."""
         file_path = "passwords.json"
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
             with open(file_path, 'r') as file:
                 data = json.load(file)
 
-            # Find the identifier and delete the password
-            for entry in data:
-                if entry['identifier'] == identifier:
-                    if password in entry['passwords']:
-                        entry['passwords'].remove(password)
-
-                    # Remove entry if no passwords remain
-                    if not entry['passwords']:
-                        data.remove(entry)
-                    break
+            # Filter out the entry with the matching id
+            data = [entry for entry in data if entry['id'] != entry_id]
 
             # Save the updated data to the file
             with open(file_path, 'w') as file:
