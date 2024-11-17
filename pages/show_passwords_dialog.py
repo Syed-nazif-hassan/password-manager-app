@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from pages.all_passwords_dialog import AllPasswordsDialog
-from security import decrypt_identifier, decrypt_password
+from security import decrypt_string
 import json
 import os
 
@@ -50,7 +50,7 @@ class ShowPasswordsDialog(QDialog):
 
         # Decrypt the identifier for title label
         title_label = QLabel(f"Password{'s' if len(self.passwords_and_ids) > 1 else ''} for {
-                             decrypt_identifier(self.identifier)}:", self)
+                             decrypt_string(self.identifier)}:", self)
         title_label.setStyleSheet(
             "font-size: 20px; font-weight: bold; color: #FFFF00;")
         layout.addWidget(title_label)
@@ -89,7 +89,7 @@ class ShowPasswordsDialog(QDialog):
 
             # Decrypt the password
             password_label = QLabel(
-                f"- {decrypt_password(password_and_id['password'])}", self)
+                f"- {decrypt_string(password_and_id['password'])}", self)
 
             password_label.setStyleSheet("font-size: 14px; color: #FFFFFF;")
             password_row.addWidget(password_label)

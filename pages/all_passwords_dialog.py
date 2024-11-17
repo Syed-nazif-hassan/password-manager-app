@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QWidget
 from PySide6.QtCore import Qt
-from security import decrypt_identifier, decrypt_password
+from security import decrypt_string
 from collections import defaultdict
 import json
 import os
@@ -58,8 +58,8 @@ class AllPasswordsDialog(QDialog):
 
         for entry in data:
             # Decrypt the identifier and password
-            decrypted_identifier = decrypt_identifier(entry['identifier'])
-            decrypted_password = decrypt_password(entry['password'])
+            decrypted_identifier = decrypt_string(entry['identifier'])
+            decrypted_password = decrypt_string(entry['password'])
 
             # Group all passwords and IDs under the same identifier
             grouped_passwords[decrypted_identifier].append(
