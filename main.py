@@ -15,7 +15,7 @@ class PasswordManagerApp(QWidget):
         self.setFixedSize(400, 300)
 
         # Set window icon
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("icon/window_icon.png"))
 
         # Create a stacked widget to manage multiple pages
         self.stacked_widget = QStackedWidget(self)

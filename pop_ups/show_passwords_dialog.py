@@ -9,8 +9,8 @@ from PySide6.QtWidgets import (
     QPushButton
 )
 from PySide6.QtCore import Qt
-from pages.all_passwords_dialog import AllPasswordsDialog
-from security import decrypt_string
+from pop_ups.all_passwords_dialog import AllPasswordsDialog
+from security.security import decrypt_string
 import json
 import os
 
@@ -103,7 +103,7 @@ class ShowPasswordsDialog(QDialog):
             copy_button.setFocusPolicy(Qt.NoFocus)
             copy_button.setFixedSize(40, 20)
             copy_button.clicked.connect(
-                lambda _, p=password_and_id: self.copy_password(p))
+                lambda _, p=decrypt_string(password_and_id['password']): self.copy_password(p))
             password_row.addWidget(copy_button)
 
             # Delete button
@@ -138,14 +138,17 @@ class ShowPasswordsDialog(QDialog):
 
     def remove_password_from_json(self, id):
         """Remove the password from the JSON file."""
-        file_path = "passwords.json"
+        file_path = "storage/passwords.json"
 
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
             with open(file_path, 'r') as file:
                 data = json.load(file)
 
         for entry in data:
-            if entry['id'] == id:
+            # Encrypted JSON key (ID)
+            encrypted_id_key = list(entry.keys())[0]
+
+            if entry[encrypted_id_key] == id:
                 data.remove(entry)
 
         # Write the updated data back to the JSON file

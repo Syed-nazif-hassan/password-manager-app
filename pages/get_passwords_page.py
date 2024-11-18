@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 from PySide6.QtCore import QTimer, Qt
-from pages.show_passwords_dialog import ShowPasswordsDialog
-from security import decrypt_string
+from pop_ups.show_passwords_dialog import ShowPasswordsDialog
+from security.security import decrypt_string
 import json
 import os
 
@@ -74,14 +74,14 @@ class GetPasswordPage(QWidget):
         # Check if the input is empty
         if not entered_identifier:
             # Display error message if the input is empty
-            self.error_label.setText("Please enter a identifier.")
+            self.error_label.setText("Please enter an identifier.")
 
             # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
             QTimer.singleShot(3000, self.clear_error_message)
             return  # Stop further processing if input is empty
 
         # Define the file path
-        file_path = "passwords.json"
+        file_path = "storage/passwords.json"
 
         # Check if the file exists and is not empty
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
@@ -93,11 +93,15 @@ class GetPasswordPage(QWidget):
         # Search for the entered identifier in the loaded data
         password_and_ids = []
         for entry in data:
-            # Identifier in encrypted form
-            encrypted_identifier = entry['identifier']
+            # Encrypted JSON keys
+            encrypted_id_key = list(entry.keys())[0]
+            encrypted_identifier_key = list(entry.keys())[1]
+            encrypted_password_key = list(entry.keys())[2]
 
-            # Password in encrypted form
-            encrypted_password = entry['password']
+            # ID, Identifier and Password in encrypted form
+            encrypted_id = entry[encrypted_id_key]
+            encrypted_identifier = entry[encrypted_identifier_key]
+            encrypted_password = entry[encrypted_password_key]
 
             # Decrypt the identifier before comparison
             decrypted_identifier = decrypt_string(encrypted_identifier)
@@ -107,7 +111,7 @@ class GetPasswordPage(QWidget):
                 identifier_to_send = encrypted_identifier
 
                 # Append the encrypted password to the list
-                password_and_ids.append({"id": entry['id'],
+                password_and_ids.append({"id": encrypted_id,
                                         "password": encrypted_password})
 
         if password_and_ids:

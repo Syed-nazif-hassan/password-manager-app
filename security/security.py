@@ -1,9 +1,16 @@
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import base64
+from dotenv import dotenv_values
 
-# Key for AES encryption
-KEY = b'Sixteen byte key'
+# Reload the .env file
+env_values = dotenv_values('.env')
+
+# Access the encryption key from the reloaded .env file
+encoded_key = env_values.get('ENCRYPTION_KEY')
+
+# Decode the encryption key to binary format
+KEY = base64.b64decode(encoded_key)
 
 # Encrypt string
 

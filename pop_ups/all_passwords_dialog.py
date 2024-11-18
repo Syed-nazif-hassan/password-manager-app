@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QWidget
 from PySide6.QtCore import Qt
-from security import decrypt_string
+from security.security import decrypt_string
 from collections import defaultdict
 import json
 import os
@@ -47,7 +47,7 @@ class AllPasswordsDialog(QDialog):
         passwords_layout = QVBoxLayout(passwords_widget)
 
         # Load the identifiers, passwords and IDs from the JSON file
-        file_path = "passwords.json"
+        file_path = "storage/passwords.json"
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
             with open(file_path, 'r') as file:
                 data = json.load(file)
@@ -57,13 +57,19 @@ class AllPasswordsDialog(QDialog):
         grouped_passwords = defaultdict(list)
 
         for entry in data:
+            # Encrypted JSON keys
+            encrypted_id_key = list(entry.keys())[0]
+            encrypted_identifier_key = list(entry.keys())[1]
+            encrypted_password_key = list(entry.keys())[2]
+
             # Decrypt the identifier and password
-            decrypted_identifier = decrypt_string(entry['identifier'])
-            decrypted_password = decrypt_string(entry['password'])
+            decrypted_identifier = decrypt_string(
+                entry[encrypted_identifier_key])
+            decrypted_password = decrypt_string(entry[encrypted_password_key])
 
             # Group all passwords and IDs under the same identifier
             grouped_passwords[decrypted_identifier].append(
-                {"id": entry['id'], "password": decrypted_password})
+                {"id": entry[encrypted_id_key], "password": decrypted_password})
 
         # Build the UI
         for identifier, password_and_id_list in grouped_passwords.items():
@@ -85,7 +91,7 @@ class AllPasswordsDialog(QDialog):
 
                 password_row.addStretch(1)
 
-                # Delete button for each password 
+                # Delete button for each password
                 delete_button = QPushButton("Delete", self)
                 delete_button.setStyleSheet(
                     "background-color: #FF0000; color: #FFFFFF; font-size: 10px;")
@@ -102,20 +108,27 @@ class AllPasswordsDialog(QDialog):
 
     def delete_password(self, entry_id):
         """Delete the password from the JSON file and update the UI."""
-        file_path = "passwords.json"
+        file_path = "storage/passwords.json"
         if os.path.exists(file_path) and os.stat(file_path).st_size > 0:
             with open(file_path, 'r') as file:
                 data = json.load(file)
 
             # Filter out the entry with the matching id
-            data = [entry for entry in data if entry['id'] != entry_id]
+            # data = [entry for entry in data if entry['id'] != entry_id]
+            filtered_data = []
+            for entry in data:
+                # Encrypted JSON key (ID)
+                encrypted_id_key = list(entry.keys())[0]
+
+                if entry[encrypted_id_key] != entry_id:
+                    filtered_data.append(entry)
 
             # Save the updated data to the file
             with open(file_path, 'w') as file:
-                json.dump(data, file, indent=4)
+                json.dump(filtered_data, file, indent=4)
 
             # Check if no passwords are left in the entire data
-            if not data:
+            if not filtered_data:
                 self.close()  # Close the dialog if no passwords are left
             else:
                 # Refresh the UI after deletion

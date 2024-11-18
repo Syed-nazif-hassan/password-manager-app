@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFormLayout
 from PySide6.QtCore import QTimer, Qt
-from security import encrypt_string
+from security.security import encrypt_string
 import uuid
 import json
 import os
@@ -88,7 +88,7 @@ class SavePasswordPage(QWidget):
             # Stop further processing if input is empty
             return
         elif not identifier:
-            self.error_label.setText("Please enter a identifier.")
+            self.error_label.setText("Please enter an identifier.")
 
             # Set a timer to clear the error message after 3 seconds (3000 milliseconds)
             QTimer.singleShot(3000, self.clear_error_message)
@@ -105,7 +105,12 @@ class SavePasswordPage(QWidget):
             return
 
         # Define the file path
-        file_path = "passwords.json"
+        file_path = "storage/passwords.json"
+
+        # Encrypt the JSON keys
+        encrypted_id_key = encrypt_string("id")
+        encrypted_identifier_key = encrypt_string("identifier")
+        encrypted_password_key = encrypt_string("password")
 
         # Encrypt the identifier and password
         encrypted_identifier = encrypt_string(identifier)
@@ -122,10 +127,10 @@ class SavePasswordPage(QWidget):
             # If the file doesn't exist or is empty, initialize an empty list
             data = []
 
-        # Create a new entry with the encrypted identifier and password
-        data.append({"id": unique_id,
-                     "identifier": encrypted_identifier,
-                     "password": encrypted_password})
+        # Create a new entry with the encrypted identifier, password and ID
+        data.append({encrypted_id_key: unique_id,
+                     encrypted_identifier_key: encrypted_identifier,
+                     encrypted_password_key: encrypted_password})
 
         # Save the updated data back to the JSON file
         with open(file_path, 'w') as file:
