@@ -20,10 +20,10 @@ class PasswordManagerApp(QWidget):
         # Create a stacked widget to manage multiple pages
         self.stacked_widget = QStackedWidget(self)
 
-        # Create the first page (from external file)
+        # Create the first page
         self.save_password_page = SavePasswordPage(self)
 
-        # Create the second page (from external file)
+        # Create the second page
         self.get_password_page = GetPasswordPage(self)
 
         # Add pages to the stacked widget

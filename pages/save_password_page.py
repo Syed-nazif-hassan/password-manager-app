@@ -14,7 +14,7 @@ class SavePasswordPage(QWidget):
         # Layout for the password saving page
         layout = QVBoxLayout()
 
-        # Main title label
+        # Title label for password saving page
         title_label = QLabel("Password Manager", self)
         title_label.setStyleSheet(
             "font-size: 24px; font-weight: bold; color: #FFFF00;")
@@ -127,7 +127,7 @@ class SavePasswordPage(QWidget):
             # If the file doesn't exist or is empty, initialize an empty list
             data = []
 
-        # Create a new entry with the encrypted identifier, password and ID
+        # Create a new entry with the encrypted ID, identifier and password
         data.append({encrypted_id_key: unique_id,
                      encrypted_identifier_key: encrypted_identifier,
                      encrypted_password_key: encrypted_password})

@@ -37,6 +37,11 @@ class AllPasswordsDialog(QDialog):
     def setup_scroll_area(self, layout, widget):
         """Set up the scroll area"""
         scroll_area = QScrollArea(self)
+        scroll_area.setStyleSheet("""
+                                  QScrollBar::handle {
+                                      background-color: #FF6347;
+                                  }
+                                  """)
         scroll_area.setWidget(widget)
         scroll_area.setWidgetResizable(True)
         layout.addWidget(scroll_area)
@@ -113,8 +118,7 @@ class AllPasswordsDialog(QDialog):
             with open(file_path, 'r') as file:
                 data = json.load(file)
 
-            # Filter out the entry with the matching id
-            # data = [entry for entry in data if entry['id'] != entry_id]
+            # Keep only the entries where the ID does not match the entry_id
             filtered_data = []
             for entry in data:
                 # Encrypted JSON key (ID)

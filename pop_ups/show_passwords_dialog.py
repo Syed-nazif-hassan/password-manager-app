@@ -60,6 +60,7 @@ class ShowPasswordsDialog(QDialog):
         all_passwords_button = QPushButton("Show All Passwords", self)
         all_passwords_button.setStyleSheet(
             "background-color: #007BFF; color: #FFFFFF;")
+        all_passwords_button.setFocusPolicy(Qt.NoFocus)
         all_passwords_button.clicked.connect(
             self.show_all_passwords_dialog)  # Connect to AllPasswordsDialog
         layout.addWidget(all_passwords_button)
@@ -74,6 +75,11 @@ class ShowPasswordsDialog(QDialog):
     def setup_scroll_area(self, layout, password_widget):
         """Set up the scroll area"""
         scroll_area = QScrollArea(self)
+        scroll_area.setStyleSheet("""
+                                  QScrollBar::handle {
+                                      background-color: #FF6347;
+                                  }
+                                  """)
         scroll_area.setWidget(password_widget)
         scroll_area.setWidgetResizable(True)
         layout.addWidget(scroll_area)
