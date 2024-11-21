@@ -1,4 +1,4 @@
-# Password Manager
+# Password Manager App
 
 This is a password manager application built using `PySide`, a `Python` framework. It allows you to save, retrieve, and manage your passwords securely. The application uses `PyCryptodome` for encrypting all data to ensure your passwords are kept safe. Your passwords are stored locally in a JSON file with the data encrypted for security.
 
@@ -24,3 +24,14 @@ This is a password manager application built using `PySide`, a `Python` framewor
   - `Copy`: Copy the selected password.
   - `Delete`: Delete the selected password.
   - `Show All Passwords`: View all identifiers and their associated passwords in another popup.
+  
+## Here are some pictures of the Password Manager App:
+  
+<p style="display: flex; gap: 10px;">
+  <img src="pictures/save_password.png" alt="save password screen" width="500" height="400"/>
+  <img src="pictures/get_passwords.png" alt="get passwords screen" width="500" height="400"/> 
+</p>
+<p style="display: flex; gap: 10px;">
+  <img src="pictures/show_passwords.png" alt="show passwords screen" width="500" height="400"/>
+  <img src="pictures/all_passwords.png" alt="all passwords screen" width="500" height="400"/> 
+</p>
